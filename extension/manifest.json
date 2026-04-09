@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "BrowserTTS v2",
+  "version": "2.0",
+  "description": "选中文字，一键下载为MP3音频",
+  "permissions": [
+    "contextMenus",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://localhost:5001/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

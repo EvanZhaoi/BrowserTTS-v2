@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  tts:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "5001:5001"
+    volumes:
+      # 持久化语音模型（下载一次后重用）
+      - ./server/voices:/app/voices
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
