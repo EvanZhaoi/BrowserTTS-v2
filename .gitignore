@@ -1,0 +1,11 @@
+# 忽略 .DS_Store
+.DS_Store
+
+# 忽略临时文件
+*.pyc
+__pycache__/
+
+# 模型文件（如果想手动管理）
+# server/voices/*.onnx
+# server/voices/*.onnx.json
+node_modules/

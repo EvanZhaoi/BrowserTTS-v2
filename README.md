@@ -11,7 +11,9 @@
 
 ## 快速开始
 
-### 1. 下载语音模型
+### 1. 下载语音模型（重要！）
+
+**前提**：首次下载需要在有代理的机器上完成（因为 HuggingFace 在国内访问慢）。
 
 ```bash
 # 创建模型目录
@@ -31,6 +33,20 @@ curl -L -o server/voices/en_US/en_US-lessac-medium.onnx \
 curl -L -o server/voices/en_US/en_US-lessac-medium.onnx.json \
   https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json
 ```
+
+或者使用脚本（需要代理）：
+```bash
+bash scripts/download-models.sh
+```
+
+**提交到 Git：**
+```bash
+git add server/voices/
+git commit -m "Add Piper TTS voice models"
+git push
+```
+
+部署时拉取代码，模型已经在项目中。
 
 ### 2. 启动 Docker
 
@@ -93,3 +109,12 @@ npm run dev
 - Flask - Web服务
 - Vue 3 + Vite - 网页前端
 - Docker - 容器化部署
+
+## 部署说明
+
+1. 在有代理的机器上运行 `scripts/download-models.sh` 下载模型
+2. 提交到 Git：`git add server/voices/`
+3. 在目标服务器 `git clone` 或 `git pull`
+4. 运行 `docker-compose up -d`
+
+模型文件约 92MB（中英文各一个模型）。
