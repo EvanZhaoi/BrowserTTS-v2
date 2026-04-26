@@ -90,7 +90,7 @@ git push
 
 ## 架构兼容性
 
-> ⚠️ 当前 Dockerfile 默认下载的是 `piper_linux_amd64`，适用于 amd64/x86_64 Linux 服务器。
+> ⚠️ 当前 Dockerfile 已内置 `docker/bin/piper_linux_amd64` 目录中的 Piper 二进制文件，默认适用于 amd64/x86_64 Linux 服务器。
 
 如果部署到以下环境，需要替换为对应架构的 Piper 可执行文件：
 
@@ -149,7 +149,7 @@ environment:
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | `MAX_TEXT_LENGTH` | `1000` | 最大文本长度 |
-| `PIPER_BIN` | `/usr/local/bin/piper` | Piper 可执行文件路径 |
+| `PIPER_BIN` | `/usr/local/piper/piper` | Piper 可执行文件路径 |
 
 ## 技术栈
 
@@ -163,7 +163,13 @@ environment:
 ```
 BrowserTTS-v2/
 ├── docker/
-│   └── Dockerfile          # Docker 镜像配置
+│   ├── Dockerfile          # Docker 镜像配置
+│   └── bin/
+│       └── piper_linux_amd64/   # Piper 二进制和依赖库（ELF 64-bit x86-64）
+│           ├── piper
+│           ├── libespeak-ng.so
+│           ├── libonnxruntime.so
+│           └── ...
 ├── server/
 │   ├── app.py               # Flask 服务端
 │   ├── requirements.txt     # Python 依赖
