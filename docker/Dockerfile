@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y \
 # 复制 Piper（包含二进制和依赖库）
 COPY docker/bin/piper_linux_amd64/ /usr/local/piper/
 
+RUN chmod +x /usr/local/piper/piper && \
+    chmod -R 755 /usr/local/piper
+
 # 复制应用代码
 COPY server/ /app/
 
