@@ -37,6 +37,29 @@ MODELS = {
 }
 
 
+def check_models():
+    """检查模型文件是否存在，不存在则抛出清晰错误"""
+    missing = []
+    for lang, info in MODELS.items():
+        if not os.path.exists(info['model']):
+            missing.append(f"{lang}: {info['model']}")
+        if not os.path.exists(info['config']):
+            missing.append(f"{lang}: {info['config']}")
+    if missing:
+        raise FileNotFoundError(
+            f"Model files not found. Please ensure voices directory is complete.\n"
+            f"Missing: {missing}\n"
+            f"Expected location: {VOICES_DIR}"
+        )
+
+
+# 启动时检查模型
+try:
+    check_models()
+except FileNotFoundError as e:
+    print(f"[ERROR] {e}")
+
+
 def is_chinese(text: str) -> bool:
     """判断文本是否主要为中文"""
     chinese_chars = len(re.findall(r'[\u4e00-\u9fff]', text))

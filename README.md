@@ -11,27 +11,56 @@
 - ⚡ **语速可调** - 0.5x ~ 2.0x 实时调整
 - 📥 **直接播放 + 下载** - MP3 格式，44.1kHz 立体声 128kbps
 
-## 部署策略
+## 部署策略（中国网络环境）
 
-> 由于中国网络环境无法直接访问 HuggingFace，本项目采用"提前下载模型并随代码提交"的部署方式。
-> 模型约 92MB，可以接受。如果未来增加更多音色导致仓库过大，可考虑 Git LFS、内网对象存储、私有制品库或 Harbor 镜像内置模型。
+本项目已将 Piper 模型文件直接存储在 Git 仓库中。
 
-## 快速开始
+部署步骤：
 
-### 第一步：在有代理的电脑上下载模型并提交 Git
+1. **直接拉取代码**
+   ```bash
+   git clone https://github.com/EvanZhaoi/BrowserTTS-v2.git
+   ```
+
+2. **启动服务**
+   ```bash
+   docker-compose up -d --build
+   ```
+
+3. **访问网页**
+   http://localhost:5001
+
+> 无需访问 HuggingFace 或 Git LFS，模型文件已随代码一起下载。
+
+---
+
+## 快速开始（开发者）
+
+### 模型文件验证
+
+克隆后验证模型文件是真实文件（而非 LFS pointer）：
+
+```bash
+ls -lh server/voices/zh_CN/
+```
+
+- **正确情况**：文件大小约 50~70MB
+- **错误情况**：只有几百字节（说明还是 LFS pointer，需重新拉取）
+
+### 在有代理的电脑上准备/更新模型
 
 ```bash
 # 创建模型目录
 mkdir -p server/voices/zh_CN server/voices/en_US
 
-# 下载中文模型 (约 46MB)
+# 下载中文模型 (约 60MB)
 curl -L -o server/voices/zh_CN/zh_CN-huayan-medium.onnx \
   https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/zh/zh_CN/huayan/medium/zh_CN-huayan-medium.onnx
 
 curl -L -o server/voices/zh_CN/zh_CN-huayan-medium.onnx.json \
   https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/zh/zh_CN/huayan/medium/zh_CN-huayan-medium.onnx.json
 
-# 下载英文模型 (约 46MB)
+# 下载英文模型 (约 60MB)
 curl -L -o server/voices/en_US/en_US-lessac-medium.onnx \
   https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx
 
@@ -40,39 +69,24 @@ curl -L -o server/voices/en_US/en_US-lessac-medium.onnx.json \
 
 # 提交到 Git
 git add server/voices/
-git commit -m "Add Piper voice models"
+git commit -m "Update Piper voice models"
 git push
 ```
 
-### 第二步：生产环境服务器拉取代码
+---
 
-```bash
-git clone https://github.com/EvanZhaoi/BrowserTTS-v2.git
-# 或者已有的仓库：git pull
-```
+## 模型存储说明
 
-### 第三步：启动 Docker
+当前模型约 92MB（中英文各一个），直接存储在 Git 仓库中。
 
-```bash
-docker-compose up -d --build
-```
+如果未来模型增多导致仓库过大，可以考虑：
 
-> 不需要服务器访问 HuggingFace，模型已随代码一起拉取到 `server/voices/` 目录。
+- **Git LFS** - Git 官方的二进制大文件管理方案
+- **私有对象存储** - OSS、MinIO 等
+- **Harbor 镜像内置模型** - 构建包含模型的 Docker 镜像
+- **内网文件服务器** - 通过 URL 或 volume 挂载提供模型
 
-### 第四步：访问网页
-
-打开浏览器访问：
-```
-http://localhost:5001
-```
-
-即可看到网页界面，输入文字、调整语速、生成语音、在线播放或下载 MP3。
-
-### 第五步：测试 API
-
-```bash
-curl http://localhost:5001/health
-```
+---
 
 ## 架构兼容性
 
@@ -155,7 +169,7 @@ BrowserTTS-v2/
 │   ├── requirements.txt     # Python 依赖
 │   ├── static/
 │   │   └── index.html      # 网页入口
-│   └── voices/              # 语音模型（随代码提交）
+│   └── voices/              # 语音模型（直接存储在 Git 中）
 │       ├── zh_CN/
 │       └── en_US/
 ├── scripts/
@@ -163,3 +177,11 @@ BrowserTTS-v2/
 ├── docker-compose.yml
 └── README.md
 ```
+
+## 部署目标
+
+✅ 中国服务器无需外网  
+✅ git clone 后直接可用  
+✅ docker-compose 一键启动  
+✅ 网页直接使用  
+✅ 无 LFS 依赖
