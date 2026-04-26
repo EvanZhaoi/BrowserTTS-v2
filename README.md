@@ -11,14 +11,14 @@
 - ⚡ **语速可调** - 0.5x ~ 2.0x 实时调整
 - 📥 **直接播放 + 下载** - MP3 格式，44.1kHz 立体声 128kbps
 
+## 部署策略
+
+> 由于中国网络环境无法直接访问 HuggingFace，本项目采用"提前下载模型并随代码提交"的部署方式。
+> 模型约 92MB，可以接受。如果未来增加更多音色导致仓库过大，可考虑 Git LFS、内网对象存储、私有制品库或 Harbor 镜像内置模型。
+
 ## 快速开始
 
-### 第一步：下载语音模型
-
-> ⚠️ 首次运行前必须先下载模型文件。模型放到 `server/voices/` 目录。
-> 建议不要提交到 Git。docker-compose 会通过 volume 挂载该目录。
-
-**前提**：下载需要在有代理的机器上完成（因为 HuggingFace 在国内访问慢）。
+### 第一步：在有代理的电脑上下载模型并提交 Git
 
 ```bash
 # 创建模型目录
@@ -37,20 +37,29 @@ curl -L -o server/voices/en_US/en_US-lessac-medium.onnx \
 
 curl -L -o server/voices/en_US/en_US-lessac-medium.onnx.json \
   https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json
+
+# 提交到 Git
+git add server/voices/
+git commit -m "Add Piper voice models"
+git push
 ```
 
-或者使用脚本（需要代理）：
+### 第二步：生产环境服务器拉取代码
+
 ```bash
-bash scripts/download-models.sh
+git clone https://github.com/EvanZhaoi/BrowserTTS-v2.git
+# 或者已有的仓库：git pull
 ```
 
-### 第二步：启动 Docker
+### 第三步：启动 Docker
 
 ```bash
 docker-compose up -d --build
 ```
 
-### 第三步：访问网页
+> 不需要服务器访问 HuggingFace，模型已随代码一起拉取到 `server/voices/` 目录。
+
+### 第四步：访问网页
 
 打开浏览器访问：
 ```
@@ -59,19 +68,10 @@ http://localhost:5001
 
 即可看到网页界面，输入文字、调整语速、生成语音、在线播放或下载 MP3。
 
-### 第四步：测试 API
+### 第五步：测试 API
 
-访问健康检查：
 ```bash
 curl http://localhost:5001/health
-```
-
-测试语音生成：
-```bash
-curl -X POST http://localhost:5001/speak \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Hello你好World世界", "rate": 1.0}' \
-  --output test.mp3
 ```
 
 ## 架构兼容性
@@ -155,11 +155,11 @@ BrowserTTS-v2/
 │   ├── requirements.txt     # Python 依赖
 │   ├── static/
 │   │   └── index.html      # 网页入口
-│   └── voices/              # 语音模型目录（需要单独下载）
+│   └── voices/              # 语音模型（随代码提交）
 │       ├── zh_CN/
 │       └── en_US/
 ├── scripts/
-│   └── download-models.sh   # 模型下载脚本
+│   └── download-models.sh   # 模型下载脚本（仅用于有代理的电脑）
 ├── docker-compose.yml
 └── README.md
 ```
