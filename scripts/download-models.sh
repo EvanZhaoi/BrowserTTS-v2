@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# BrowserTTS v2 - 下载 Piper 语音模型
+# 仅用于在有代理的环境中准备或更新模型
+# 生产服务器不需要执行此脚本
+# 正常部署直接 git clone 即可
 
 mkdir -p server/voices/zh_CN server/voices/en_US
 

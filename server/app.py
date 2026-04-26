@@ -6,7 +6,6 @@ BrowserTTS v2 - Flask 服务端
 
 import io
 import os
-import uuid
 import re
 import subprocess
 import tempfile
@@ -36,9 +35,14 @@ MODELS = {
     }
 }
 
+# 全局状态：模型是否完整
+models_ok = True
+models_error_msg = ""
+
 
 def check_models():
-    """检查模型文件是否存在，不存在则抛出清晰错误"""
+    """检查模型文件是否存在"""
+    global models_ok, models_error_msg
     missing = []
     for lang, info in MODELS.items():
         if not os.path.exists(info['model']):
@@ -46,11 +50,16 @@ def check_models():
         if not os.path.exists(info['config']):
             missing.append(f"{lang}: {info['config']}")
     if missing:
+        models_ok = False
+        models_error_msg = f"Missing: {missing}"
         raise FileNotFoundError(
             f"Model files not found. Please ensure voices directory is complete.\n"
             f"Missing: {missing}\n"
             f"Expected location: {VOICES_DIR}"
         )
+    else:
+        models_ok = True
+        models_error_msg = ""
 
 
 # 启动时检查模型
@@ -191,17 +200,31 @@ def index():
 @app.route('/health', methods=['GET'])
 def health():
     """健康检查"""
-    return jsonify({
-        'status': 'ok',
-        'engine': 'piper',
-        'max_text_length': MAX_TEXT_LENGTH
-    })
+    if models_ok:
+        return jsonify({
+            'status': 'ok',
+            'engine': 'piper',
+            'max_text_length': MAX_TEXT_LENGTH
+        })
+    else:
+        return jsonify({
+            'status': 'error',
+            'engine': 'piper',
+            'models': False,
+            'error': models_error_msg,
+            'max_text_length': MAX_TEXT_LENGTH
+        }), 500
 
 
 @app.route('/speak', methods=['POST'])
 def speak():
     """文字转语音"""
     try:
+        if not models_ok:
+            return jsonify({
+                'error': f"Model files not found. Please ensure voices directory is complete. {models_error_msg}"
+            }), 500
+
         data = request.json or {}
         text = data.get('text', '')
         rate = float(data.get('rate', 1.0))

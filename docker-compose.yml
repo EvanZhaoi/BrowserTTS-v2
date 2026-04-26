@@ -6,7 +6,7 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      # 持久化语音模型（下载一次后重用）
+      # 挂载随代码提交的语音模型目录（无需在线下载）
       - ./server/voices:/app/voices
     environment:
       - MAX_TEXT_LENGTH=1000
