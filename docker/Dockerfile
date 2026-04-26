@@ -6,10 +6,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 Piper TTS（可通过 PIPER_BIN 环境变量覆盖路径）
-RUN curl -L -o /usr/local/bin/piper \
-    https://github.com/rhasspy/piper/releases/download/v1.0.0/piper_linux_amd64 && \
-    chmod +x /usr/local/bin/piper
+# 复制 Piper（包含二进制和依赖库）
+COPY docker/bin/piper_linux_amd64/ /usr/local/piper/
 
 # 复制应用代码
 COPY server/ /app/
@@ -21,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 默认环境变量（可通过 docker-compose 或环境变量覆盖）
 ENV MAX_TEXT_LENGTH=1000
-ENV PIPER_BIN=/usr/local/bin/piper
+ENV PIPER_BIN=/usr/local/piper/piper
 
 EXPOSE 5001
 

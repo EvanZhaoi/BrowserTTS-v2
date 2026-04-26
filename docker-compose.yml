@@ -10,7 +10,7 @@ services:
       - ./server/voices:/app/voices
     environment:
       - MAX_TEXT_LENGTH=1000
-      - PIPER_BIN=/usr/local/bin/piper
+      - PIPER_BIN=/usr/local/piper/piper
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
