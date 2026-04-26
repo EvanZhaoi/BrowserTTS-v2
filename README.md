@@ -13,24 +13,12 @@
 
 ## 快速开始
 
-### 1. 启动 Docker
+### 第一步：下载语音模型
 
-```bash
-docker-compose up -d --build
-```
+> ⚠️ 首次运行前必须先下载模型文件。模型放到 `server/voices/` 目录。
+> 建议不要提交到 Git。docker-compose 会通过 volume 挂载该目录。
 
-### 2. 访问网页
-
-打开浏览器访问：
-```
-http://localhost:5001
-```
-
-即可看到网页界面，输入文字、调整语速、生成语音、在线播放或下载 MP3。
-
-### 3. 下载语音模型（首次运行前需要）
-
-**前提**：首次下载需要在有代理的机器上完成（因为 HuggingFace 在国内访问慢）。
+**前提**：下载需要在有代理的机器上完成（因为 HuggingFace 在国内访问慢）。
 
 ```bash
 # 创建模型目录
@@ -56,9 +44,22 @@ curl -L -o server/voices/en_US/en_US-lessac-medium.onnx.json \
 bash scripts/download-models.sh
 ```
 
-**注意**：模型文件约 92MB（中英文各一个模型），不建议提交到 Git。建议放到 `server/voices/` 目录并通过 volume 挂载持久化。
+### 第二步：启动 Docker
 
-### 4. 测试 API
+```bash
+docker-compose up -d --build
+```
+
+### 第三步：访问网页
+
+打开浏览器访问：
+```
+http://localhost:5001
+```
+
+即可看到网页界面，输入文字、调整语速、生成语音、在线播放或下载 MP3。
+
+### 第四步：测试 API
 
 访问健康检查：
 ```bash
@@ -71,6 +72,23 @@ curl -X POST http://localhost:5001/speak \
   -H "Content-Type: application/json" \
   -d '{"text": "Hello你好World世界", "rate": 1.0}' \
   --output test.mp3
+```
+
+## 架构兼容性
+
+> ⚠️ 当前 Dockerfile 默认下载的是 `piper_linux_amd64`，适用于 amd64/x86_64 Linux 服务器。
+
+如果部署到以下环境，需要替换为对应架构的 Piper 可执行文件：
+
+| 架构 | 示例环境 | 解决方案 |
+|------|----------|----------|
+| ARM64 (aarch64) | 树莓派、ARM 服务器 | 使用 `piper_linux_aarch64` 或从源码编译 |
+| Apple Silicon | Mac M1/M2/M3 | 手动安装支持 arm64 的 Piper 版本，或使用 Docker 镜像 |
+
+可通过设置环境变量 `PIPER_BIN` 覆盖默认路径，例如：
+```yaml
+environment:
+  - PIPER_BIN=/custom/path/piper
 ```
 
 ## 网页功能
@@ -134,14 +152,14 @@ BrowserTTS-v2/
 │   └── Dockerfile          # Docker 镜像配置
 ├── server/
 │   ├── app.py               # Flask 服务端
+│   ├── requirements.txt     # Python 依赖
 │   ├── static/
-│   │   └── index.html       # 网页入口
+│   │   └── index.html      # 网页入口
 │   └── voices/              # 语音模型目录（需要单独下载）
 │       ├── zh_CN/
 │       └── en_US/
-├── docker-compose.yml
-├── requirements.txt
 ├── scripts/
-│   └── download-models.sh  # 模型下载脚本
+│   └── download-models.sh   # 模型下载脚本
+├── docker-compose.yml
 └── README.md
 ```
